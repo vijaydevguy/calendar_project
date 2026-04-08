@@ -1,9 +1,10 @@
 import Image from "next/image";
+import Calender from "./calender/Calender";
 
 export default function Home() {
   return (
     <div>
-      mainpage
+      <Calender />
     </div>
   );
 }

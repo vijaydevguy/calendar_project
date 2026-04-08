@@ -1,5 +1,6 @@
 "use client";
 import { assets } from "@/assets/assets";
+import useHandleCalender from "@/hooks/useHandleCalender";
 import { generateCalendar } from "@/utils/generateDates";
 import Image from "next/image";
 import { useState } from "react";
@@ -7,36 +8,18 @@ import { useState } from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 
 const Calender = () => {
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const {
+    monthImages,
+    monthNames,
+    handleNext,
+    handlePrev,
+    dates,
+    currentDate,
+    dayNames,
+  } = useHandleCalender(new Date());
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  const handleNext = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
-    );
-  };
-
-  const handlePrev = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
-    );
-  };
-
-  const dates = generateCalendar(currentDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   return (
     <div className="max-w-5xl mx-auto p-4 flex h-screen w-full justify-center items-center">
@@ -44,11 +27,11 @@ const Calender = () => {
         {/* LEFT - IMAGE */}
         <div className="flex justify-center items-center">
           <Image
-            src={assets.img}
+            src={monthImages[currentDate.getMonth()]}
             alt="calendar"
             width={400}
             height={400}
-            className="rounded-xl object-cover select-none pointer-events-none"
+            className="rounded-xl object-cover select-none pointer-events-none max-h-[250px] h-[250px]"
           />
         </div>
 
@@ -69,21 +52,38 @@ const Calender = () => {
 
           {/* DAYS HEADER */}
           <div className="grid grid-cols-7 text-center font-medium">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            {dayNames.map((day) => (
               <p key={day}>{day}</p>
             ))}
           </div>
-
           {/* GRID */}
           <div className="grid grid-cols-7 gap-2">
-            {dates.map((day, i) => (
-              <div
-                key={i}
-                className="h-10 flex items-center justify-center border border-gray-200 rounded-md"
-              >
-                {day || ""}
-              </div>
-            ))}
+            {dates.map((item, i) => {
+              const isWeekend = i % 7 === 5 || i % 7 === 6;
+              const cellDate = new Date(item.fullDate);
+              cellDate.setHours(0, 0, 0, 0);
+
+              const isToday = cellDate.getTime() === today.getTime();
+
+              const isPast = cellDate < today;
+              return (
+                <button
+                  key={i}
+                  disabled={isPast}
+                  className={`
+                        h-10 flex items-center justify-center 
+                        hover:bg-gray-100 rounded-full
+                        {}
+                        ${item.currentMonth ? "text-black" : "text-gray-400"}
+                        ${isWeekend ? "text-red-500" : ""}
+                        ${isPast ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                        ${isToday ? "bg-gray-700 text-white hover:bg-gray-700" : ""}
+                        `}
+                >
+                  {item.day}
+                </button>
+              );
+            })}
           </div>
 
           {/* NOTES */}

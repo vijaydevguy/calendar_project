@@ -269,19 +269,17 @@ const Calender = () => {
                 return (
                   <button
                     key={i}
-                    disabled={isPast}
                     onClick={() => {
-                      if (isPast) return;
                       handleDateClick(item.fullDate);
                     }}
                     className={`
-                        h-10 flex flex-col items-center justify-center relative
+                        h-10 flex flex-col items-center justify-center relative cursor-pointer
                         hover:bg-gray-100 rounded-full
                         {}
                         ${item.currentMonth ? "text-black" : "text-gray-400"}
                         ${isWeekend ? "text-red-500" : ""}
-                        ${holiday ? "text-orange-500 font-bold" : ""}
-                        ${isPast ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                        ${holiday ? "text-orange-500 bg-orange-50 font-bold" : ""}
+                        ${isPast ? "opacity-40" : ""}
                         ${isToday ? "bg-gray-700 text-white hover:bg-gray-700" : ""}
                         ${isInRange ? "bg-blue-100" : ""}
                         ${isStart || isEnd ? "bg-blue-100 font-semibold" : ""}
@@ -289,7 +287,8 @@ const Calender = () => {
                     title={holiday ? holiday.name : ""}
                   >
                     <span className="z-10">{item.day}</span>
-                    <div className="flex gap-1 absolute bottom-1">
+
+                    <div className={`flex gap-1 absolute bottom-1`}>
                       {hasDayNote && (
                         <div
                           className="w-1.5 h-1.5 rounded-full bg-blue-500"
@@ -318,7 +317,7 @@ const Calender = () => {
             {/* <form action={handleSave}> */}
             {/* SAVED RANGES CHIPS */}
             {visibleRanges.length > 0 && (
-              <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex flex-wrap gap-2 items-center max-w-[250px]">
                 <span className="text-sm font-medium text-gray-500">
                   Ranges:
                 </span>
@@ -329,7 +328,7 @@ const Calender = () => {
                       setStartDate(r.start);
                       setEndDate(r.end);
                     }}
-                    className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-full border hover:bg-gray-50 transition"
+                    className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-full border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
                   >
                     <div className={`w-2 h-2 rounded-full ${r.color}`}></div>
                     {r.start.toLocaleDateString("en-GB", {

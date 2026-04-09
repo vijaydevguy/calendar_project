@@ -252,7 +252,7 @@ const Calender = () => {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Write notes..."
-                className="border rounded-md p-2 h-24"
+                className="border rounded-md p-2 h-24 max-h-[120px] min-h-[54px]"
               />
             </div>
 

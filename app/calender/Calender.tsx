@@ -8,6 +8,20 @@ import { useEffect, useState } from "react";
 
 import { FaAngleLeft, FaAngleRight, FaExpand } from "react-icons/fa6";
 
+// Add a simple interface for the Calendarific holiday response
+interface Holiday {
+  name: string;
+  description: string;
+  date: {
+    iso: string;
+    datetime: {
+      year: number;
+      month: number;
+      day: number;
+    };
+  };
+}
+
 const Calender = () => {
   const {
     monthImages,
@@ -72,6 +86,35 @@ const Calender = () => {
 
   const [note, setNote] = useState("");
   const [allNotes, setAllNotes] = useState<Record<string, string>>({});
+
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [isLoadingHolidays, setIsLoadingHolidays] = useState(false);
+
+  // Fetch holidays when year changes
+  useEffect(() => {
+    const fetchHolidays = async () => {
+      const apiKey = process.env.NEXT_PUBLIC_CALENDARIFIC_API_KEY;
+      if (!apiKey) return;
+
+      setIsLoadingHolidays(true);
+      try {
+        const year = currentDate.getFullYear();
+        const res = await fetch(
+          `https://calendarific.com/api/v2/holidays?api_key=${apiKey}&country=IN&year=${year}`,
+        );
+        const data = await res.json();
+        if (data?.response?.holidays) {
+          setHolidays(data.response.holidays);
+        }
+      } catch (error) {
+        console.error("Failed to fetch holidays:", error);
+      } finally {
+        setIsLoadingHolidays(false);
+      }
+    };
+
+    fetchHolidays();
+  }, [currentDate.getFullYear()]);
 
   const currentMonthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`;
   const hasMonthNote = !!allNotes[currentMonthKey];
@@ -190,6 +233,13 @@ const Calender = () => {
                   (r) => cellTime >= r.startTime && cellTime <= r.endTime,
                 );
 
+                const holiday = holidays.find(
+                  (h) =>
+                    h.date.datetime.year === cellDate.getFullYear() &&
+                    h.date.datetime.month === cellDate.getMonth() + 1 &&
+                    h.date.datetime.day === cellDate.getDate(),
+                );
+
                 return (
                   <button
                     key={i}
@@ -204,11 +254,13 @@ const Calender = () => {
                         {}
                         ${item.currentMonth ? "text-black" : "text-gray-400"}
                         ${isWeekend ? "text-red-500" : ""}
+                        ${holiday ? "text-orange-500 font-bold" : ""}
                         ${isPast ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
                         ${isToday ? "bg-gray-700 text-white hover:bg-gray-700" : ""}
                         ${isInRange ? "bg-blue-100" : ""}
                         ${isStart || isEnd ? "bg-blue-100 font-semibold" : ""}
                         `}
+                    title={holiday ? holiday.name : ""}
                   >
                     <span className="z-10">{item.day}</span>
                     <div className="flex gap-1 absolute bottom-1">
@@ -216,6 +268,12 @@ const Calender = () => {
                         <div
                           className="w-1.5 h-1.5 rounded-full bg-blue-500"
                           title="Day Note"
+                        ></div>
+                      )}
+                      {holiday && (
+                        <div
+                          className="w-1.5 h-1.5 rounded-full bg-orange-500"
+                          title={holiday.name}
                         ></div>
                       )}
                       {matchingRanges.map((r, idx) => (
@@ -265,6 +323,26 @@ const Calender = () => {
             {/* NOTES */}
             <div className="flex flex-col gap-2">
               <p className="font-semibold">{noteTitle}</p>
+
+              {isDayMode &&
+                holidays.find(
+                  (h) =>
+                    h.date.datetime.year === startDate.getFullYear() &&
+                    h.date.datetime.month === startDate.getMonth() + 1 &&
+                    h.date.datetime.day === startDate.getDate(),
+                ) && (
+                  <p className="text-orange-500  text-sm font-medium">
+                    🎉 Holiday:{" "}
+                    {
+                      holidays.find(
+                        (h) =>
+                          h.date.datetime.year === startDate.getFullYear() &&
+                          h.date.datetime.month === startDate.getMonth() + 1 &&
+                          h.date.datetime.day === startDate.getDate(),
+                      )?.name
+                    }
+                  </p>
+                )}
 
               <textarea
                 value={note}

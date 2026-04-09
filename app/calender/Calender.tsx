@@ -145,11 +145,23 @@ const Calender = () => {
     saveNotes(fetchedNotes);
   };
 
-  const monthStartTimestamp = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getTime();
-  const monthEndTimestamp = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999).getTime();
+  const monthStartTimestamp = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1,
+  ).getTime();
+  const monthEndTimestamp = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  ).getTime();
 
   const visibleRanges = savedRanges.filter(
-    (r) => r.startTime <= monthEndTimestamp && r.endTime >= monthStartTimestamp
+    (r) => r.startTime <= monthEndTimestamp && r.endTime >= monthStartTimestamp,
   );
 
   return (
@@ -193,7 +205,9 @@ const Calender = () => {
                     {currentDate.getFullYear()}
                   </h2>
                   {isLoadingHolidays && (
-                    <span className="text-xs font-semibold text-gray-400 animate-pulse">fetching...</span>
+                    <span className="text-xs font-semibold text-gray-400 animate-pulse">
+                      fetching...
+                    </span>
                   )}
                 </div>
                 {hasMonthNote && (

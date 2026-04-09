@@ -145,6 +145,13 @@ const Calender = () => {
     saveNotes(fetchedNotes);
   };
 
+  const monthStartTimestamp = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getTime();
+  const monthEndTimestamp = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999).getTime();
+
+  const visibleRanges = savedRanges.filter(
+    (r) => r.startTime <= monthEndTimestamp && r.endTime >= monthStartTimestamp
+  );
+
   return (
     <div className="max-h-screen overflow-auto py-[5%]">
       <div className="max-w-5xl mx-auto p-4 flex h-full w-full justify-center items-center overflow-auto">
@@ -180,10 +187,15 @@ const Calender = () => {
                 onClick={handleReset}
                 title="View Monthly Notes"
               >
-                <h2 className="text-xl font-semibold select-none">
-                  {monthNames[currentDate.getMonth()]}{" "}
-                  {currentDate.getFullYear()}
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-semibold select-none">
+                    {monthNames[currentDate.getMonth()]}{" "}
+                    {currentDate.getFullYear()}
+                  </h2>
+                  {isLoadingHolidays && (
+                    <span className="text-xs font-semibold text-gray-400 animate-pulse">fetching...</span>
+                  )}
+                </div>
                 {hasMonthNote && (
                   <div
                     className="w-2.5 h-2.5 rounded-full bg-blue-500"
@@ -291,12 +303,12 @@ const Calender = () => {
 
             {/* <form action={handleSave}> */}
             {/* SAVED RANGES CHIPS */}
-            {savedRanges.length > 0 && (
+            {visibleRanges.length > 0 && (
               <div className="flex flex-wrap gap-2 items-center">
                 <span className="text-sm font-medium text-gray-500">
                   Ranges:
                 </span>
-                {savedRanges.map((r, idx) => (
+                {visibleRanges.map((r, idx) => (
                   <button
                     key={idx}
                     onClick={() => {
